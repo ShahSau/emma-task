@@ -8,6 +8,7 @@ import (
 
 	"github.com/gothinkster/golang-gin-realworld-example-app/articles"
 	"github.com/gothinkster/golang-gin-realworld-example-app/common"
+	"github.com/gothinkster/golang-gin-realworld-example-app/jobs"
 	"github.com/gothinkster/golang-gin-realworld-example-app/users"
 	"gorm.io/gorm"
 )
@@ -19,12 +20,19 @@ func Migrate(db *gorm.DB) {
 	db.AutoMigrate(&articles.FavoriteModel{})
 	db.AutoMigrate(&articles.ArticleUserModel{})
 	db.AutoMigrate(&articles.CommentModel{})
+
+	// Migrate the Job table
+	db.AutoMigrate(&jobs.Job{})
 }
 
 func main() {
-
 	db := common.Init()
+
+	// Initialize S3 (LocalStack)
+	common.InitS3()
+
 	Migrate(db)
+
 	sqlDB, err := db.DB()
 	if err != nil {
 		log.Println("failed to get sql.DB:", err)
@@ -35,7 +43,6 @@ func main() {
 	r := gin.Default()
 
 	// Disable automatic redirect for trailing slashes
-	// This prevents POST body from being lost during redirects
 	r.RedirectTrailingSlash = false
 
 	v1 := r.Group("/api")
@@ -59,7 +66,6 @@ func main() {
 		})
 	})
 
-	// Get port from environment variable or use default
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
