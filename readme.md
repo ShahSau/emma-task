@@ -60,7 +60,7 @@ go tool cover -func=coverage.out
 ```
 .
 ├── gorm.db
-├── hello.go
+├── main.go
 ├── common
 │   ├── utils.go        //small tools function
 │   └── database.go     //DB connect manager
@@ -99,10 +99,10 @@ Example usage:
 # Option 1: Set environment variables directly
 export PORT=3000
 export DB_PATH=./data/myapp.db
-go run hello.go
+go run main.go
 
 # Option 2: Inline with command
-PORT=3000 go run hello.go
+PORT=3000 go run main.go
 ```
 
 See `.env.example` for a complete template.
@@ -119,10 +119,10 @@ go mod tidy
 ## Run the Server
 ```bash
 # Using default port 8080
-go run hello.go
+go run main.go
 
 # Using custom port
-PORT=3000 go run hello.go
+PORT=3000 go run main.go
 ```
 
 ## Testing

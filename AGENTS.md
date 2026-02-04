@@ -19,7 +19,7 @@ This is a **Golang/Gin** implementation of the [RealWorld](https://github.com/go
 
 ```
 .
-├── hello.go           # Main entry point
+├── main.go           # Main entry point
 ├── common/            # Shared utilities
 │   ├── database.go    # Database connection manager
 │   ├── utils.go       # Helper functions (JWT, validation, etc.)
@@ -62,7 +62,7 @@ go fmt ./...
 golangci-lint run
 
 # Start the server
-go run hello.go
+go run main.go
 ```
 
 ## Code Style Guidelines
