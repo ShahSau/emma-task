@@ -15,6 +15,7 @@ require (
 	golang.org/x/crypto v0.47.0
 	gorm.io/driver/postgres v1.6.0
 	gorm.io/gorm v1.30.5
+	github.com/aws/aws-sdk-go-v2/feature/s3/manager v1.21.1
 )
 
 require (

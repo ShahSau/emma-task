@@ -16,6 +16,7 @@ type ArticleModel struct {
 	Body        string `gorm:"size:2048"`
 	Author      ArticleUserModel
 	AuthorID    uint
+	UUID        string         `gorm:"index"`
 	Tags        []TagModel     `gorm:"many2many:article_tags;"`
 	Comments    []CommentModel `gorm:"ForeignKey:ArticleID"`
 }
@@ -48,7 +49,7 @@ type CommentModel struct {
 	ArticleID uint
 	Author    ArticleUserModel
 	AuthorID  uint
-	Body      string `gorm:"size:2048"`
+	Body      string `gorm:"type:text"`
 }
 
 func GetArticleUserModel(userModel users.UserModel) ArticleUserModel {

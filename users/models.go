@@ -20,6 +20,7 @@ type UserModel struct {
 	Bio          string  `gorm:"column:bio;size:1024"`
 	Image        *string `gorm:"column:image"`
 	PasswordHash string  `gorm:"column:password;not null"`
+	UUID         string  `gorm:"index"`
 }
 
 // A hack way to save ManyToMany relationship,
@@ -120,12 +121,9 @@ func (u UserModel) following(v UserModel) error {
 //	followingBool = myUserModel.isFollowing(self.UserModel)
 func (u UserModel) isFollowing(v UserModel) bool {
 	db := common.GetDB()
-	var follow FollowModel
-	db.Where(FollowModel{
-		FollowingID:  v.ID,
-		FollowedByID: u.ID,
-	}).First(&follow)
-	return follow.ID != 0
+	var count int64
+	db.Model(&FollowModel{}).Where("following_id = ? AND followed_by_id = ?", v.ID, u.ID).Count(&count)
+	return count > 0
 }
 
 // You could delete a following relationship as userModel1 following userModel2
@@ -142,13 +140,12 @@ func (u UserModel) unFollowing(v UserModel) error {
 //	followings := userModel.GetFollowings()
 func (u UserModel) GetFollowings() []UserModel {
 	db := common.GetDB()
-	var follows []FollowModel
 	var followings []UserModel
-	db.Preload("Following").Where(FollowModel{
-		FollowedByID: u.ID,
-	}).Find(&follows)
-	for _, follow := range follows {
-		followings = append(followings, follow.Following)
-	}
+
+	db.Table("user_models").
+		Joins("INNER JOIN follow_models ON follow_models.following_id = user_models.id").
+		Where("follow_models.followed_by_id = ?", u.ID).
+		Find(&followings)
+
 	return followings
 }
