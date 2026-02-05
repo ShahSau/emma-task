@@ -10,6 +10,7 @@ import (
 	"github.com/gothinkster/golang-gin-realworld-example-app/common"
 	"github.com/gothinkster/golang-gin-realworld-example-app/jobs"
 	"github.com/gothinkster/golang-gin-realworld-example-app/jobs/worker"
+	"github.com/gothinkster/golang-gin-realworld-example-app/routers"
 	"github.com/gothinkster/golang-gin-realworld-example-app/users"
 	"gorm.io/gorm"
 )
@@ -75,6 +76,13 @@ func main() {
 			"message": "pong",
 		})
 	})
+
+	// EXPORTS
+	v1Root.POST("/exports", routers.AsyncExport)
+	v1Root.GET("/exports", routers.SyncExport)
+
+	// JOBS
+	v1Root.GET("/exports/:job_id", routers.GetJobStatus)
 
 	port := os.Getenv("PORT")
 	if port == "" {

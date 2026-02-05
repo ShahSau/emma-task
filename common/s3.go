@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -12,6 +13,7 @@ import (
 )
 
 var S3Client *s3.Client
+var PresignClient *s3.PresignClient
 
 func InitS3() {
 	// Load basic config
@@ -28,7 +30,6 @@ func InitS3() {
 	}
 
 	// Configure for LocalStack (if running locally)
-	// We check if AWS_ENDPOINT is set (e.g., http://localstack:4566)
 	endpoint := os.Getenv("AWS_ENDPOINT")
 	if endpoint != "" {
 		S3Client = s3.NewFromConfig(cfg, func(o *s3.Options) {
@@ -40,9 +41,27 @@ func InitS3() {
 		S3Client = s3.NewFromConfig(cfg)
 	}
 
-	fmt.Println("S3 Client Initialized")
+	// Initialize Presign Client
+	PresignClient = s3.NewPresignClient(S3Client)
 }
 
 func GetS3() *s3.Client {
 	return S3Client
+}
+
+// GetPresignedURL generates a temporary URL to download a file
+func GetPresignedURL(key string) (string, error) {
+	if PresignClient == nil {
+		return "", fmt.Errorf("presign client not initialized")
+	}
+	request, err := PresignClient.PresignGetObject(context.TODO(), &s3.GetObjectInput{
+		Bucket: aws.String(os.Getenv("S3_BUCKET")),
+		Key:    aws.String(key),
+	}, func(opts *s3.PresignOptions) {
+		opts.Expires = 1 * time.Hour // Link valid for 1 hour
+	})
+	if err != nil {
+		return "", err
+	}
+	return request.URL, nil
 }
