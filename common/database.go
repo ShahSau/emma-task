@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -12,7 +13,6 @@ import (
 var DB *gorm.DB
 
 func Init() *gorm.DB {
-	// Build DSN from Docker Environment Variables
 	dsn := fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=UTC",
 		os.Getenv("DB_HOST"),
@@ -22,9 +22,24 @@ func Init() *gorm.DB {
 		os.Getenv("DB_PORT"),
 	)
 
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	var db *gorm.DB
+	var err error
+
+	// RETRY LOOP: Try to connect for 30 seconds
+	for i := 1; i <= 15; i++ {
+		db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+		if err == nil {
+			log.Println("Database connection established!")
+			break
+		}
+
+		log.Printf("Failed to connect to database (Attempt %d/15). Retrying in 2s... Error: %v", i, err)
+		time.Sleep(2 * time.Second)
+	}
+
+	// If still failing after 30 seconds, then crash
 	if err != nil {
-		log.Fatal("Failed to connect to database: ", err)
+		log.Fatal("Could not connect to database after retries: ", err)
 	}
 
 	DB = db

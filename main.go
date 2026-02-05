@@ -9,6 +9,7 @@ import (
 	"github.com/gothinkster/golang-gin-realworld-example-app/articles"
 	"github.com/gothinkster/golang-gin-realworld-example-app/common"
 	"github.com/gothinkster/golang-gin-realworld-example-app/jobs"
+	"github.com/gothinkster/golang-gin-realworld-example-app/jobs/worker"
 	"github.com/gothinkster/golang-gin-realworld-example-app/users"
 	"gorm.io/gorm"
 )
@@ -40,11 +41,15 @@ func main() {
 		defer sqlDB.Close()
 	}
 
+	// START THE WORKER HERE
+	worker.StartWorker()
+
 	r := gin.Default()
 
 	// Disable automatic redirect for trailing slashes
 	r.RedirectTrailingSlash = false
 
+	// --- Existing RealWorld API Routes ---
 	v1 := r.Group("/api")
 	users.UsersRegister(v1.Group("/users"))
 	v1.Use(users.AuthMiddleware(false))
@@ -58,8 +63,13 @@ func main() {
 
 	articles.ArticlesRegister(v1.Group("/articles"))
 
-	testAuth := r.Group("/api/ping")
+	// --- NEW: Bulk Import/Export Routes ---
+	// Using /v1 root to strictly follow the assignment requirements
+	v1Root := r.Group("/v1")
+	jobs.JobsRegister(v1Root)
 
+	// --- Health Check / Ping ---
+	testAuth := r.Group("/api/ping")
 	testAuth.GET("/", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "pong",
