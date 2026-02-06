@@ -1,35 +1,11 @@
 #!/usr/bin/env bash
+set -e
 
-SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+# 1. Navigate from 'api/' directory up to Project Root
+cd "$(dirname "$0")/.."
 
-# Default to local docker address if not set
-APIURL=${APIURL:-http://localhost:8080}
-USERNAME=${USERNAME:-u`date +%s`}
-EMAIL=${EMAIL:-$USERNAME@mail.com}
-PASSWORD=${PASSWORD:-password}
+echo "Running API Integration Tests (Go)..."
 
-DELAY_REQUEST=${DELAY_REQUEST:-"500"}
-
-echo "------------------------------------------------"
-echo "Running Standard API Tests (Conduit)..."
-echo "------------------------------------------------"
-npx newman run $SCRIPTDIR/Conduit.postman_collection.json \
-  --delay-request "$DELAY_REQUEST" \
-  --global-var "APIURL=$APIURL" \
-  --global-var "USERNAME=$USERNAME" \
-  --global-var "EMAIL=$EMAIL" \
-  --global-var "PASSWORD=$PASSWORD" \
-  "$@" || exit 1
-
-echo ""
-echo "------------------------------------------------"
-echo "Running Bulk Operations Tests (Import/Export)..."
-echo "------------------------------------------------"
-# Run the new BulkOps collection
-npx newman run $SCRIPTDIR/BulkOps.postman_collection.json \
-  --delay-request "$DELAY_REQUEST" \
-  --global-var "APIURL=$APIURL" \
-  --global-var "USERNAME=$USERNAME" \
-  --global-var "EMAIL=$EMAIL" \
-  --global-var "PASSWORD=$PASSWORD" \
-  "$@"
+# 2. Run the integration tests located in tests/ folder
+# -v: Verbose output so you can see which endpoints are being hit
+go test -v ./tests/...

@@ -1,19 +1,11 @@
-linters:
-  disable-all: true
-  enable:
-    - staticcheck
-    - unused
-    - misspell
-
-linters-settings:
-  misspell:
-    locale: US
-
-issues:
-  exclude-use-default: true
-  max-issues-per-linter: 50
-  max-same-issues: 10
-  
+# .golangci.yml
+version: "2"
 run:
   timeout: 5m
-  go: '1.22'
+  go: "1.23"
+
+linters:
+  enable:
+    - govet
+    - ineffassign
+    - unused

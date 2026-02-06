@@ -1,19 +1,12 @@
 #!/usr/bin/env bash
-
 set -e
 
-# http://stackoverflow.com/a/21142256/2055281
+echo "Running all tests with coverage..."
 
-echo "mode: atomic" > coverage.out
+# -coverpkg=./... : Ensures integration tests in 'tests/' count towards coverage of 'users/', 'articles/' etc.
+# ./... : Runs tests in all subdirectories (unit and integration)
+go test -v -covermode=atomic -coverprofile=coverage.out -coverpkg=./... ./...
 
-for d in $(find ./* -maxdepth 10 -type d); do
-    if ls $d/*.go &> /dev/null; then
-        go test  -coverprofile=profile.out -covermode=atomic $d
-        if [ -f profile.out ]; then
-            echo "$(pwd)"
-            cat profile.out | grep -v "mode: " >> coverage.out
-            rm profile.out
-        fi
-    fi
-done
-
+echo ""
+echo "Coverage report generated: coverage.out"
+go tool cover -func=coverage.out
