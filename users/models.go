@@ -75,9 +75,6 @@ func (u *UserModel) checkPassword(password string) error {
 	return bcrypt.CompareHashAndPassword(byteHashedPassword, bytePassword)
 }
 
-// You could input the conditions and it will return an UserModel in database with error info.
-//
-//	userModel, err := FindOneUser(&UserModel{Username: "username0"})
 func FindOneUser(condition interface{}) (UserModel, error) {
 	db := common.GetDB()
 	var model UserModel
@@ -116,9 +113,6 @@ func (u UserModel) following(v UserModel) error {
 	return err
 }
 
-// You could check whether  userModel1 following userModel2
-//
-//	followingBool = myUserModel.isFollowing(self.UserModel)
 func (u UserModel) isFollowing(v UserModel) bool {
 	db := common.GetDB()
 	var count int64
@@ -126,18 +120,12 @@ func (u UserModel) isFollowing(v UserModel) bool {
 	return count > 0
 }
 
-// You could delete a following relationship as userModel1 following userModel2
-//
-//	err = userModel1.unFollowing(userModel2)
 func (u UserModel) unFollowing(v UserModel) error {
 	db := common.GetDB()
 	err := db.Where("following_id = ? AND followed_by_id = ?", v.ID, u.ID).Delete(&FollowModel{}).Error
 	return err
 }
 
-// You could get a following list of userModel
-//
-//	followings := userModel.GetFollowings()
 func (u UserModel) GetFollowings() []UserModel {
 	db := common.GetDB()
 	var followings []UserModel
