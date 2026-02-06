@@ -129,4 +129,4 @@ jobs:
         go mod download
     
     - name: Run API Tests
-      run: bash ./api/run_api_tests.sh
+      run: bash ./api/run-api-tests.sh
